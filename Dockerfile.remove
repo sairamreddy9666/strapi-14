@@ -1,0 +1,16 @@
+# Stage 1: Install dependencies
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm run build
+COPY . .
+
+# Remove dev/test files
+RUN rm -rf tests .git .github Dockerfile* README.md
+
+# Stage 2: Runtime
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app ./
+EXPOSE 1337
+CMD ["npm", "start"]
